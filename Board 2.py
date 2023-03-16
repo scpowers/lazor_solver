@@ -29,7 +29,10 @@ class Board:
 
 
     # TODO: render_board - draw board config + laser as grid image and save it
+    # Maranda
+    def render_board():
 
+        return []
 
 if __name__ == '__main__':
     formatted_board = [[0, 0, 1, 0],
