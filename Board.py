@@ -10,7 +10,7 @@ class Board:
     # TODO: modify_board - adjust board configuration
 
     # TODO: get_laser_path - compute and return sequence of points the laser visits
-    def laser_path(self):
+    def get_laser_path(self):
         # convert board into grid where cells are 3x3 across
         new_board = np.zeros((3*len(self.board), 3*len(self.board)))
         for i, row in enumerate(self.board):
@@ -20,7 +20,13 @@ class Board:
 
                 new_board[3*i:3*(i+1), 3*j:3*(j+1)] = cell
 
-        print(f'new board:\n {new_board}')
+        # check if a given position is within the gridded board
+        def pos_check(coord_board, pos):
+            pass
+
+            print(f'new board:\n {new_board}')
+        laser_path = [self.laser_pos]
+
 
     # TODO: render_board - draw board config + laser as grid image and save it
 
@@ -31,4 +37,4 @@ if __name__ == '__main__':
                        [0, 0, 0, 0],
                        [0, 1, 0, 0]]
     test_board = Board(formatted_board, [1, 1], [1, 1])
-    test_board.laser_path()
+    test_board.get_laser_path()
