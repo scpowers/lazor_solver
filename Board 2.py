@@ -102,7 +102,7 @@ def get_next_relevant_cell_center(latest_pos, direction):
 def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, direction):
     next_relevant_cell_val = new_board[next_relevant_center_coords[0], next_relevant_center_coords[1]]
     # case 1: the next relevant cell is empty or a hole
-    if next_relevant_cell_val == 0 or next_relevant_cell_val == 5:
+    if next_relevant_cell_val == 0 or next_relevant_cell_val == 6:
         next_pos = [latest_pos[0] + direction[0], latest_pos[1] + direction[1]]  # move normally by one step
         next_direction = direction  # direction is unchanged
     # case 2: the next relevant cell is a reflective cell, so change direction
@@ -129,11 +129,12 @@ def should_laser_path_end(new_board, next_relevant_center_coords):
     else:
         return False
 
+
 if __name__ == '__main__':
-    formatted_board = [[0, 0, 0, 1],
-                       [0, 0, 0, 0],
-                       [0, 0, 0, 2],
-                       [0, 0, 1, 0]]
+    formatted_board = [[0, 0, 0, 0],
+                       [1, 0, 0, 0],
+                       [0, 0, 1, 2],
+                       [0, 0, 0, 0]]
     test_board = Board(formatted_board, [[2, 7]], [[1, -1]])
     test_board.get_laser_path()
     print(f'{test_board.laser_visited_pts}')
