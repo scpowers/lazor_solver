@@ -74,11 +74,31 @@ class Board:
                     # get the position and direction of the next step in the laser path
                     next_pos, next_direction = get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos,
                                                                       direction, backtracking_options)
+                    # edge case: you already tried the alternative route from a refractive block
+                    if next_pos is None:
+                        # backtrack until either your next relevant cell center is a different refractive block or the queue empties
+                        print('alternative route for refractive cell already explored, backtracking...')
+                        laser_path.pop()
+                        laser_dir_history.pop()
+                        backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
+                        tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]), tuple(laser_dir_history[-1]))
+                        found_diff_refractive_block = new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and backtracking_options[tmp_key] != []
+                        while not found_diff_refractive_block and len(laser_path) > 0:
+                            laser_path.pop()
+                            laser_dir_history.pop()
+                            if len(laser_path) == 0:
+                                break
+                            backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1],
+                                                                                      laser_dir_history[-1])
+                            tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]), tuple(laser_dir_history[-1]))
+                            found_diff_refractive_block = new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and backtracking_options[tmp_key] != []
 
-                    # update
-                    laser_path.append(next_pos)
-                    laser_dir_history.append(next_direction)
-                    iter += 1
+                    else:
+                        # update
+                        laser_path.append(next_pos)
+                        print(f'updated laser path: {laser_path}')
+                        laser_dir_history.append(next_direction)
+                        iter += 1
 
         # store visited points as attribute
         self.laser_visited_pts = total_visited_pts
@@ -151,7 +171,8 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
         else:
             if len(backtracking_options[tmp_key]) == 0:
                 # this is when you already backtracked to the alternate route
-                raise ValueError('supposedly already backtracked alternate route, this is not implemented yet lol')
+                next_pos = None
+                next_direction = None
             else:
                 print('taking alternate route')
                 next_pos = backtracking_options[tmp_key][0]
@@ -162,7 +183,7 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
     else:
         raise ValueError(f'cell type {next_relevant_cell_val} not supported yet')
 
-    print(f'--- received next pos {next_pos} and next direction {next_direction} ---')
+    #print(f'--- received next pos {next_pos} and next direction {next_direction} ---')
     return next_pos, next_direction
 
 
@@ -177,10 +198,10 @@ def should_laser_path_end(new_board, next_relevant_center_coords):
 
 
 if __name__ == '__main__':
-    formatted_board = [[0, 0, 0, 0],
-                       [0, 0, 0, 0],
-                       [0, 2, 0, 1],
-                       [0, 0, 0, 1]]
+    formatted_board = [[0, 0, 2, 0],
+                       [0, 0, 0, 1],
+                       [1, 0, 0, 0],
+                       [0, 0, 0, 0]]
     test_board = Board(formatted_board, [[2, 7]], [[1, -1]])
     test_board.get_laser_path()
     print(f'{test_board.laser_visited_pts}')
