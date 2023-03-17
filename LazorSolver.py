@@ -29,7 +29,7 @@ def generate_possible_configs(starting_board):
     unique_blocks_to_place = set(blocks_to_place)
     print(f'unique blocks to place: {unique_blocks_to_place}')
 
-    empty_board = np.array([0 for i in starting_board if i != 3])
+    empty_board = np.array([0 if i != 3 else i for i in starting_board])
 
     possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs)
     # convert from 1D numpy arrays to 2D nested Python lists
