@@ -81,6 +81,21 @@ if __name__ == '__main__':
     starting_board = starting_board.flatten()
     print(f'{starting_board}')
 
+    points_to_hit = [[3, 0], [4, 3], [2, 5], [4, 7]]
+
     possible_configs = generate_possible_configs(starting_board)
     print(len(possible_configs))
     print(f'{possible_configs[0]}')
+    for config in possible_configs:
+        tmp = Board(config, [[2, 7]], [[1, -1]])
+        tmp.get_laser_path()
+
+        total_visited_pts = []
+        for val in list(tmp.laser_visited_pts.values()):
+            total_visited_pts += val
+
+        if not np.any([pt not in total_visited_pts for pt in points_to_hit]):
+            print('supposedly found solution')
+            print(f'{config}')
+            break
+
