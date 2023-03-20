@@ -19,6 +19,13 @@ def openBFF(filePointer: str = "dark_1.bff"):
     print(gridString)
     print(grid)
 
+    ##alternative approach
+
+    lineSplitFile=file.strip().splitlines()
+    print(lineSplitFile)
+    startline=lineSplitFile.index("GRID START")
+    print(startline)
+
 
 # os.getcwd()
 file_path = os.getcwd() + '\dark_1.bff'
