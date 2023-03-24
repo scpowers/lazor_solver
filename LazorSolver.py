@@ -1,6 +1,7 @@
 from Board import Board
 import numpy as np
 from copy import deepcopy
+import time
 
 
 class LazorSolver:
@@ -83,9 +84,11 @@ if __name__ == '__main__':
 
     points_to_hit = [[3, 0], [4, 3], [2, 5], [4, 7]]
 
+    start = time.perf_counter()
     possible_configs = generate_possible_configs(starting_board)
     print(len(possible_configs))
     print(f'{possible_configs[0]}')
+
     for config in possible_configs:
         tmp = Board(config, [[2, 7]], [[1, -1]])
         tmp.get_laser_path()
@@ -98,4 +101,25 @@ if __name__ == '__main__':
             print('supposedly found solution')
             print(f'{config}')
             break
+    end = time.perf_counter()
+    print(f'elapsed time for first board solving: {end - start}')
 
+    start = time.perf_counter()
+    possible_configs = generate_possible_configs(starting_board)
+    print(len(possible_configs))
+    print(f'{possible_configs[0]}')
+
+    for config in possible_configs:
+        tmp = Board(config, [[2, 7]], [[1, -1]])
+        tmp.get_laser_path()
+
+        total_visited_pts = []
+        for val in list(tmp.laser_visited_pts.values()):
+            total_visited_pts += val
+
+        if not np.any([pt not in total_visited_pts for pt in points_to_hit]):
+            print('supposedly found solution')
+            print(f'{config}')
+            break
+    end = time.perf_counter()
+    print(f'elapsed time for second board solving: {end - start}')

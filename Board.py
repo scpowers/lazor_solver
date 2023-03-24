@@ -1,4 +1,10 @@
 import numpy as np
+from numba import jit
+from numba.core.errors import NumbaPendingDeprecationWarning
+import warnings
+import time
+
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 class Board:
 
@@ -115,11 +121,13 @@ class Board:
         return []
 
 
+@jit(nopython=True)
 # check if a given position is within the gridded board
 def pos_check(coord_board, coords):
     return 0 <= coords[0] < coord_board.shape[0] and 0 <= coords[1] < coord_board.shape[1]
 
 
+@jit(nopython=True)
 # get next relevant cell center
 def get_next_relevant_cell_center(latest_pos, direction):
     # case 1: latest position is within a vertical slice between cells
@@ -185,12 +193,14 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
                 backtracking_options[tmp_key] = []
 
     else:
-        raise ValueError(f'cell type {next_relevant_cell_val} not supported yet')
+        print(f'cell type {next_relevant_cell_val} not supported yet')
+        return
 
     #print(f'--- received next pos {next_pos} and next direction {next_direction} ---')
     return next_pos, next_direction
 
 
+@jit(nopython=True)
 # helper method to determine whether the next relevant cell implies that the laser path should end here
 def should_laser_path_end(new_board, next_relevant_center_coords):
     # just care whether the next cell is off the board OR it's an opaque cell
@@ -207,5 +217,12 @@ if __name__ == '__main__':
                        [1, 0, 0, 0],
                        [0, 0, 0, 0]]
     test_board = Board(formatted_board, [[2, 7]], [[1, -1]])
+    start = time.perf_counter()
     test_board.get_laser_path()
+    end = time.perf_counter()
+    print(f'elapsed with compilation: {end-start}')
     print(f'{test_board.laser_visited_pts}')
+    start = time.perf_counter()
+    test_board.get_laser_path()
+    end = time.perf_counter()
+    print(f'elapsed after compilation: {end-start}')
