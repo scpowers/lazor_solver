@@ -6,6 +6,7 @@ import time
 
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
+
 class Board:
 
     def __init__(self, initial_board, laser_pos, laser_dir):
@@ -28,7 +29,6 @@ class Board:
 
         # NOTE: transpose because coord system is opposite order from (row, col) accessing in the array
         new_board = np.transpose(new_board)
-        #print(f'new board:\n {new_board}')
 
         # initialize dict where each key is a laser initial position/direction pair (unique) and
         # each value is a list of visited coordinates in order [[x1, y1], [x2, y2]]
@@ -71,7 +71,8 @@ class Board:
                     laser_path.pop()
                     laser_dir_history.pop()
                     backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
-                    while len(laser_path) > 0 and new_board[backtracked_center_coords[0], backtracked_center_coords[1]] != 2:
+                    while len(laser_path) > 0 and \
+                            new_board[backtracked_center_coords[0], backtracked_center_coords[1]] != 2:
                         laser_path.pop()
                         laser_dir_history.pop()
                         if len(laser_path) == 0:
@@ -80,19 +81,23 @@ class Board:
 
                 else:
                     # get the position and direction of the next step in the laser path
-                    next_pos, next_direction = get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos,
-                                                                      direction, backtracking_options)
+                    next_pos, next_direction = get_next_laser_pos_dir(new_board, next_relevant_center_coords,
+                                                                      latest_pos, direction, backtracking_options)
                     # edge case: you already tried the alternative route from a refractive block
                     if next_pos is None:
-                        # backtrack until either your next relevant cell center is a different refractive block or the queue empties
+                        # backtrack until either your next relevant cell center is a different refractive block
+                        # or the queue empties
                         #print('alternative route for refractive cell already explored, backtracking...')
                         laser_path.pop()
                         laser_dir_history.pop()
                         if len(laser_path) == 0:
                             break
                         backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
-                        tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]), tuple(laser_dir_history[-1]))
-                        found_diff_refractive_block = new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and backtracking_options[tmp_key] != []
+                        tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]),
+                                   tuple(laser_dir_history[-1]))
+                        found_diff_refractive_block = \
+                            new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and \
+                            backtracking_options[tmp_key] != []
                         while not found_diff_refractive_block and len(laser_path) > 0:
                             laser_path.pop()
                             laser_dir_history.pop()
@@ -100,8 +105,11 @@ class Board:
                                 break
                             backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1],
                                                                                       laser_dir_history[-1])
-                            tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]), tuple(laser_dir_history[-1]))
-                            found_diff_refractive_block = new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and backtracking_options[tmp_key] != []
+                            tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]),
+                                       tuple(laser_dir_history[-1]))
+                            found_diff_refractive_block = \
+                                new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and \
+                                backtracking_options[tmp_key] != []
 
                     else:
                         # update
