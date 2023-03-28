@@ -56,15 +56,24 @@ def openBFF(filePointer: str = "dark_1.bff"):
     #laserLines=list(map(str.find("L"),file))
 
     #list of list storing the laser origin and tragectory
-    laserList=[[]]
+    laserList=[]
     #block list number list 
     blockList=[]
     #list of list storing the points the lasers must pass through
-    pointGoalList=[[]]
+    pointGoalList=[]
 
-    for line in lineSplitFile:
+    #iterate from the end of the grid to the end of the file to avoid capturing values within the grid string
+    for line in lineSplitFile[stopGridLine:]:
         if line.startswith("L"):
-            pass
+            #take the current line, strip the leading L, then strip the leading whitespace, then split each integer value on the space, then append list to laserList
+            laserList.append(line.strip('L').strip().split())
+            print(laserList)
+
+            
+        elif line.startswith("P"):
+            pointGoalList.append(line.strip('P').strip().split())
+            print(pointGoalList)
+
 
     #print(laserLines)
 
