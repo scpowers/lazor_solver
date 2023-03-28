@@ -73,7 +73,7 @@ class Board:
                     backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
                     backtracked_center_val = new_board[backtracked_center_coords[0], backtracked_center_coords[1]]
                     while len(laser_path) > 0 and \
-                            (backtracked_center_val != 2 or backtracked_center_val != 6):
+                            (backtracked_center_val != 2 and backtracked_center_val != 6):
                         laser_path.pop()
                         laser_dir_history.pop()
                         if len(laser_path) == 0:
@@ -100,7 +100,7 @@ class Board:
                         backtracked_center_val = new_board[backtracked_center_coords[0],
                                                            backtracked_center_coords[1]]
                         found_diff_refractive_block = \
-                            (backtracked_center_val == 2 or backtracked_center_val == 6) and \
+                            (backtracked_center_val == 2 and backtracked_center_val == 6) and \
                             backtracking_options[tmp_key] != []
                         while not found_diff_refractive_block and len(laser_path) > 0:
                             laser_path.pop()
@@ -114,7 +114,7 @@ class Board:
                             backtracked_center_val = new_board[backtracked_center_coords[0],
                                                                backtracked_center_coords[1]]
                             found_diff_refractive_block = \
-                                (backtracked_center_val == 2 or backtracked_center_val == 6) and \
+                                (backtracked_center_val == 2 and backtracked_center_val == 6) and \
                                 backtracking_options[tmp_key] != []
 
                     else:
@@ -211,12 +211,12 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
 
     # case 4: the next relevant cell is an opaque cell, so the beam stops here
     elif next_relevant_cell_val == 3 or next_relevant_cell_val == 7:
-        print('encountered an opaque cell, but should not hit this case because of flow control')
+        #print('encountered an opaque cell, but should not hit this case because of flow control')
         next_pos = None
         next_direction = None
 
     else:
-        print(f'cell type {next_relevant_cell_val} not supported yet')
+        #print(f'cell type {next_relevant_cell_val} not supported yet')
         return
 
     #print(f'--- received next pos {next_pos} and next direction {next_direction} ---')
@@ -244,7 +244,6 @@ if __name__ == '__main__':
     test_board.get_laser_path()
     end = time.perf_counter()
     print(f'elapsed with compilation: {end-start}')
-    print(f'{test_board.laser_visited_pts}')
     start = time.perf_counter()
     test_board.get_laser_path()
     end = time.perf_counter()
