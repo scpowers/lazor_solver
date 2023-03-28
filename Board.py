@@ -71,13 +71,15 @@ class Board:
                     laser_path.pop()
                     laser_dir_history.pop()
                     backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
+                    backtracked_center_val = new_board[backtracked_center_coords[0], backtracked_center_coords[1]]
                     while len(laser_path) > 0 and \
-                            new_board[backtracked_center_coords[0], backtracked_center_coords[1]] != 2:
+                            (backtracked_center_val != 2 or backtracked_center_val != 6):
                         laser_path.pop()
                         laser_dir_history.pop()
                         if len(laser_path) == 0:
                             break
                         backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
+                        backtracked_center_val = new_board[backtracked_center_coords[0], backtracked_center_coords[1]]
 
                 else:
                     # get the position and direction of the next step in the laser path
@@ -95,8 +97,10 @@ class Board:
                         backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
                         tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]),
                                    tuple(laser_dir_history[-1]))
+                        backtracked_center_val = new_board[backtracked_center_coords[0],
+                                                           backtracked_center_coords[1]]
                         found_diff_refractive_block = \
-                            new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and \
+                            (backtracked_center_val == 2 or backtracked_center_val == 6) and \
                             backtracking_options[tmp_key] != []
                         while not found_diff_refractive_block and len(laser_path) > 0:
                             laser_path.pop()
@@ -107,8 +111,10 @@ class Board:
                                                                                       laser_dir_history[-1])
                             tmp_key = (tuple(backtracked_center_coords), tuple(laser_path[-1]),
                                        tuple(laser_dir_history[-1]))
+                            backtracked_center_val = new_board[backtracked_center_coords[0],
+                                                               backtracked_center_coords[1]]
                             found_diff_refractive_block = \
-                                new_board[backtracked_center_coords[0], backtracked_center_coords[1]] == 2 and \
+                                (backtracked_center_val == 2 or backtracked_center_val == 6) and \
                                 backtracking_options[tmp_key] != []
 
                     else:
@@ -156,12 +162,14 @@ def get_next_relevant_cell_center(latest_pos, direction):
 # get next position and direction of the laser path
 def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, direction, backtracking_options):
     next_relevant_cell_val = new_board[next_relevant_center_coords[0], next_relevant_center_coords[1]]
+
     # case 1: the next relevant cell is empty or a hole
-    if next_relevant_cell_val == 0 or next_relevant_cell_val == 6:
+    if next_relevant_cell_val == 0 or next_relevant_cell_val == 4:
         next_pos = [latest_pos[0] + direction[0], latest_pos[1] + direction[1]]  # move normally by one step
         next_direction = direction  # direction is unchanged
+
     # case 2: the next relevant cell is a reflective cell, so change direction
-    elif next_relevant_cell_val == 1:
+    elif next_relevant_cell_val == 1 or next_relevant_cell_val == 5:
         #print('encountered a reflective cell')
         next_pos = latest_pos  # position is unchanged
         # if you're in a vertical slice between cells, just changing dx
@@ -169,8 +177,9 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
             next_direction = [-1 * direction[0], direction[1]]
         else:
             next_direction = [direction[0], -1 * direction[1]]
+
     # case 3: the next relevant cell is a refractive cell, so initially pass through it but backtrack later and reflect
-    elif next_relevant_cell_val == 2:
+    elif next_relevant_cell_val == 2 or next_relevant_cell_val == 6:
         #print('encountered a refractive cell')
         # first, check if we've encountered this before (at the same previous position and direction)
         tmp_key = (tuple(next_relevant_center_coords), tuple(latest_pos), tuple(direction))
@@ -200,6 +209,12 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
                 # wipe the alternate route so you don't take it again
                 backtracking_options[tmp_key] = []
 
+    # case 4: the next relevant cell is an opaque cell, so the beam stops here
+    elif next_relevant_cell_val == 3 or next_relevant_cell_val == 7:
+        print('encountered an opaque cell, but should not hit this case because of flow control')
+        next_pos = None
+        next_direction = None
+
     else:
         print(f'cell type {next_relevant_cell_val} not supported yet')
         return
@@ -213,7 +228,7 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
 def should_laser_path_end(new_board, next_relevant_center_coords):
     # just care whether the next cell is off the board OR it's an opaque cell
     if not pos_check(new_board, next_relevant_center_coords) or new_board[next_relevant_center_coords[0],
-                                                                          next_relevant_center_coords[1]] == 5:
+                                                                          next_relevant_center_coords[1]] == 3:
         return True
     else:
         return False
