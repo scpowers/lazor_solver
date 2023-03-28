@@ -52,7 +52,21 @@ def openBFF(filePointer: str = "dark_1.bff"):
     grid=list(map(lineList, gridString))
     print(grid)
 
-    
+    #lasers=lineSplitFile.index("L")
+    #laserLines=list(map(str.find("L"),file))
+
+    #list of list storing the laser origin and tragectory
+    laserList=[[]]
+    #block list number list 
+    blockList=[]
+    #list of list storing the points the lasers must pass through
+    pointGoalList=[[]]
+
+    for line in lineSplitFile:
+        if line.startswith("L"):
+            pass
+
+    #print(laserLines)
 
 # os.getcwd()
 file_path = os.getcwd() + '\dark_1.bff'
