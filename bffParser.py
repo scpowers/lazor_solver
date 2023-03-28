@@ -15,6 +15,10 @@ HOLE = 4  # x block
 FIXED_REFLECTIVE = 5
 FIXED_REFRACTIVE = 6
 FIXED_OPAQUE = 7
+UNAVAILABLE_GRID_KEY='x'
+FREE_GRID_KEY='o'
+HOLE_CHAR='4'
+FREE_CHAR='0'
 
 
 def openBFF(filePointer: str = "dark_1.bff"):
@@ -51,11 +55,12 @@ def openBFF(filePointer: str = "dark_1.bff"):
     # lambda function below splits a given line into a list of values
     def lineList(gridLine): return gridLine.split()
 
-    # cast result of map function appied to gridString and assign as grid
-    grid = list(map(lineList, gridString))
-
     ###CONVERSION OF STRING GRID TO NUMERICAL GRID
-    
+    #lambda function below converts the x and o characters to numerical strings 
+    convertGridSymbol = lambda newLine : newLine.replace(UNAVAILABLE_GRID_KEY, HOLE_CHAR).replace(FREE_GRID_KEY,FREE_CHAR)
+
+    # cast result of map function appied to gridString and assign as grid
+    grid = list(map(lineList, list(map(convertGridSymbol,gridString))))
 
     # list of list storing the laser origin and tragectory, for now is initialized as an empty string to inform python that it has a job to do
     laserList = []
