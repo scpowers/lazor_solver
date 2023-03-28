@@ -78,18 +78,16 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
 
 if __name__ == '__main__':
     # for now, say 0 = free, 1 = reflect block, 2 = refract block
-    starting_board = np.array([[0, 0, 1, 0],
-                               [2, 0, 0, 0],
+    starting_board = np.array([[1, 0, 0, 1],
                                [0, 0, 0, 0],
-                               [0, 1, 0, 0]])
+                               [4, 0, 2, 4],
+                               [0, 0, 1, 0]])
     starting_board = starting_board.flatten()
-    print(f'{starting_board}')
-
+    solved_board = None
     points_to_hit = [[3, 0], [4, 3], [2, 5], [4, 7]]
 
     start = time.perf_counter()
     possible_configs = generate_possible_configs(starting_board)
-    print(len(possible_configs))
 
     for config in possible_configs:
         tmp = Board(config, [[2, 7]], [[1, -1]])
@@ -102,13 +100,15 @@ if __name__ == '__main__':
         if not np.any([pt not in total_visited_pts for pt in points_to_hit]):
             print('supposedly found solution')
             print(f'{config}')
+            solved_board = config
             break
     end = time.perf_counter()
+    if solved_board is None:
+        print('*** could not find a solution ***')
     print(f'elapsed time for first board solving: {end - start}')
 
     start = time.perf_counter()
     possible_configs = generate_possible_configs(starting_board)
-    print(len(possible_configs))
 
     for config in possible_configs:
         tmp = Board(config, [[2, 7]], [[1, -1]])
@@ -121,6 +121,9 @@ if __name__ == '__main__':
         if not np.any([pt not in total_visited_pts for pt in points_to_hit]):
             print('supposedly found solution')
             print(f'{config}')
+            solved_board = config
             break
     end = time.perf_counter()
+    if solved_board is None:
+        print('*** could not find a solution ***')
     print(f'elapsed time for second board solving: {end - start}')
