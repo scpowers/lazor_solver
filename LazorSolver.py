@@ -21,16 +21,17 @@ class LazorSolver:
 
 
 def generate_possible_configs(starting_board):
-    free_site_idxs = [i for i, block in enumerate(starting_board) if block != 3]
+    free_site_idxs = [i for i, block in enumerate(starting_board) if block != 4]
     print(f'indices of free sites for block placement: {free_site_idxs}')
     num_free_sites = len(free_site_idxs)
     print(f'number of free sites for block placement: {num_free_sites}')
-    blocks_to_place = [block for block in starting_board if block == 1 or block == 2 or block == 4]
+    blocks_to_place = [block for block in starting_board if block == 1 or block == 2 or block == 3]
     print(f'blocks to place: {blocks_to_place}')
     unique_blocks_to_place = set(blocks_to_place)
     print(f'unique blocks to place: {unique_blocks_to_place}')
 
-    empty_board = np.array([0 if i != 3 else i for i in starting_board])
+    # empty board is either 0's or 4's (holes)
+    empty_board = np.array([0 if i != 4 else i for i in starting_board])
 
     possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs)
     # convert from 1D numpy arrays to 2D nested Python lists
