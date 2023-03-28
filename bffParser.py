@@ -23,27 +23,34 @@ def openBFF(filePointer: str = "dark_1.bff"):
     ##alternative approach
 
     lineSplitFile=file.strip().splitlines()
-    print(lineSplitFile)
+    
+    #print(lineSplitFile)
     #the line preceding the one where grid start was identified 
     startGridLine=1+lineSplitFile.index("GRID START")
-    print(startGridLine)
+    
+    #print(startGridLine)
 
     #the stop grid line is the line before the GRID STOP string
     stopGridLine=lineSplitFile.index("GRID STOP")-1
-    print(stopGridLine)
-    print(lineSplitFile[stopGridLine])
+    #print(stopGridLine)
+    #print(lineSplitFile[stopGridLine])
 
     #iterate the index from grid start line to grid end line plus 1 to include in range
     gridString=lineSplitFile[startGridLine:stopGridLine+1]
-    print(gridString)
+    
+    #print(gridString)
+    
     #define grid as an empty list of lists
     grid=[[]]
     
     #lambda function below splits a given line into a list of values
     lineList= lambda gridLine: gridLine.split() 
-    print(lineList(gridString[0]))
+    
+    #print(lineList(gridString[0]))
 
-    #grid
+    #cast result of map function appied to gridString and assign as grid  
+    grid=list(map(lineList, gridString))
+    print(grid)
 
     
 
