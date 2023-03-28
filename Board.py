@@ -100,7 +100,7 @@ class Board:
                         backtracked_center_val = new_board[backtracked_center_coords[0],
                                                            backtracked_center_coords[1]]
                         found_diff_refractive_block = \
-                            (backtracked_center_val == 2 and backtracked_center_val == 6) and \
+                            (backtracked_center_val == 2 or backtracked_center_val == 6) and \
                             backtracking_options[tmp_key] != []
                         while not found_diff_refractive_block and len(laser_path) > 0:
                             laser_path.pop()
@@ -114,7 +114,7 @@ class Board:
                             backtracked_center_val = new_board[backtracked_center_coords[0],
                                                                backtracked_center_coords[1]]
                             found_diff_refractive_block = \
-                                (backtracked_center_val == 2 and backtracked_center_val == 6) and \
+                                (backtracked_center_val == 2 or backtracked_center_val == 6) and \
                                 backtracking_options[tmp_key] != []
 
                     else:
@@ -183,6 +183,7 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
         #print('encountered a refractive cell')
         # first, check if we've encountered this before (at the same previous position and direction)
         tmp_key = (tuple(next_relevant_center_coords), tuple(latest_pos), tuple(direction))
+        #print(f'tmp_key: {tmp_key}')
         if tmp_key not in list(backtracking_options.keys()):
             #print('apparently this is a new refractive cell')
             # create entry with the other next_pos and next_direction for when you backtrack here
@@ -191,6 +192,7 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
             else:
                 next_direction = [direction[0], -1 * direction[1]]
             backtracking_options[tmp_key] = [latest_pos, next_direction]
+            #print(f'keys in backtracking_options at this point: {list(backtracking_options.keys())}')
 
             # move normally through the refractive block like it's clear
             next_pos = [latest_pos[0] + direction[0], latest_pos[1] + direction[1]]  # move normally by one step
@@ -235,16 +237,18 @@ def should_laser_path_end(new_board, next_relevant_center_coords):
 
 
 if __name__ == '__main__':
-    formatted_board = [[0, 0, 2, 0],
-                       [0, 0, 0, 1],
-                       [1, 0, 0, 0],
+    formatted_board = [[0, 0, 1, 0],
+                       [1, 0, 0, 1],
+                       [4, 2, 0, 4],
                        [0, 0, 0, 0]]
     test_board = Board(formatted_board, [[2, 7]], [[1, -1]])
     start = time.perf_counter()
     test_board.get_laser_path()
     end = time.perf_counter()
     print(f'elapsed with compilation: {end-start}')
+    """
     start = time.perf_counter()
     test_board.get_laser_path()
     end = time.perf_counter()
     print(f'elapsed after compilation: {end-start}')
+    """
