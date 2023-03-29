@@ -15,8 +15,6 @@ class Board:
         self.laser_dir = laser_dir  # [dx, dy] direction(s) of laser source(s) on grid where cells are 3x3 across
         self.laser_visited_pts = []  # initialize empty list, need it later for rendering
 
-    # TODO: modify_board - adjust board configuration
-
     def get_laser_path(self):
         # convert board into grid using same convention as .bff file
         new_board = np.zeros((2*len(self.board) + 1, 2*len(self.board) + 1))
