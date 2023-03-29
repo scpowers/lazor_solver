@@ -1,14 +1,7 @@
 from Board import Board
 import numpy as np
-from copy import deepcopy
 import time
 from bffParser import openBFF
-from numba import jit
-from numba.core.errors import NumbaPendingDeprecationWarning
-import warnings
-
-warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
-
 
 class LazorSolver:
 
@@ -76,6 +69,7 @@ def generate_possible_configs(input_empty_board, blocks_to_place):
     free_site_idxs = [i for i, block in enumerate(empty_board) if block not in not_free_block_types]
     possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs)
     print('exited recurse_generate_boards call')
+    print(f'initial return has {len(possible_configs)} boards')
     #print(f'board after step 1: {possible_configs[0]}')
     # convert from 1D numpy arrays to 2D nested Python lists
     possible_configs = [*set([tuple(arr) for arr in possible_configs])]
@@ -92,15 +86,14 @@ def generate_possible_configs(input_empty_board, blocks_to_place):
     return possible_configs
 
 
-@jit(nopython=True)
 def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
-    list_of_returned_configs = [[0] for i in range(0)]  # should only hold complete, valid board configs
+    list_of_returned_configs = []  # should only hold complete, valid board configs
+    visited_blocks = []
+
     # base case: no more blocks to place, return input_board
     if len(blocks_to_place) == 0:
         list_of_returned_configs.append(list(input_board))
         return list_of_returned_configs
-
-    visited_blocks = [0 for i in range(0)]
 
     for i, block in enumerate(blocks_to_place):  # for each unique block still left to place at this level
         if block in visited_blocks:
@@ -110,14 +103,11 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
 
         # for each free site where you can place this block in the input board
         for j, site in enumerate(free_site_idxs):
-            #updated_board = deepcopy(input_board)
+            # recursive call with updated board and lists
             updated_board = [row for row in input_board]
             updated_board[site] = block  # place the block
-            # recursive call with updated board and lists
-            #updated_blocks_to_place = deepcopy(blocks_to_place)
             updated_blocks_to_place = [block for block in blocks_to_place]
             updated_blocks_to_place.pop(i)
-            #updated_free_site_idxs = deepcopy(free_site_idxs)
             updated_free_site_idxs = [site for site in free_site_idxs]
             updated_free_site_idxs.pop(j)
             received_boards = recurse_generate_boards(updated_board, updated_blocks_to_place, updated_free_site_idxs)
