@@ -61,6 +61,7 @@ def openBFF(filePointer: str = "dark_1.bff"):
 
     # cast result of map function appied to gridString and assign as grid
     grid = list(map(lineList, list(map(convertGridSymbol,gridString))))
+    grid = [list(map(int, l)) for l in grid]
 
     # list of list storing the laser origin and tragectory, for now is initialized as an empty string to inform python that it has a job to do
     laserList = []
@@ -128,8 +129,9 @@ def openBFF(filePointer: str = "dark_1.bff"):
     print(laserList)
     print(pointGoalList)
     print(blockList)
+    return grid, laserList, pointGoalList, blockList
 
 # os.getcwd()
-file_path = os.getcwd() + '\dark_1.bff'
+file_path = os.getcwd() + '/dark_1.bff'
 # print(file_path)
 openBFF(file_path)
