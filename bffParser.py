@@ -17,6 +17,9 @@ FIXED_REFRACTIVE = 6
 FIXED_OPAQUE = 7
 UNAVAILABLE_GRID_KEY='x'
 FREE_GRID_KEY='o'
+FIXED_REFLECTIVE_KEY = 'A'
+FIXED_OPAQUE_KEY = 'B'
+FIXED_REFRACTIVE_KEY = 'C'
 HOLE_CHAR='4'
 FREE_CHAR='0'
 
@@ -57,7 +60,7 @@ def openBFF(filePointer: str):
 
     ###CONVERSION OF STRING GRID TO NUMERICAL GRID
     #lambda function below converts the x and o characters to numerical strings 
-    convertGridSymbol = lambda newLine : newLine.replace(UNAVAILABLE_GRID_KEY, HOLE_CHAR).replace(FREE_GRID_KEY,FREE_CHAR)
+    convertGridSymbol = lambda newLine : newLine.replace(UNAVAILABLE_GRID_KEY, HOLE_CHAR).replace(FREE_GRID_KEY,FREE_CHAR).replace(FIXED_REFLECTIVE_KEY,str(FIXED_REFLECTIVE)).replace(FIXED_REFRACTIVE_KEY,str(FIXED_REFRACTIVE)).replace(FIXED_OPAQUE_KEY,str(FIXED_OPAQUE))
 
     # cast result of map function appied to gridString and assign as grid
     grid = list(map(lineList, list(map(convertGridSymbol,gridString))))
@@ -72,7 +75,7 @@ def openBFF(filePointer: str):
 
     ###BLOCK, POINT, AND LASER PARSING###
     # iterate from the end of the grid to the end of the file to avoid capturing values within the grid string
-    for line in lineSplitFile[stopGridLine:]:
+    for line in lineSplitFile[stopGridLine+1:]:
         # check for lazor trajectory
         if line.startswith("L"):
             # take the current line,
