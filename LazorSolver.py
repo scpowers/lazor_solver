@@ -104,8 +104,6 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
 
     for i, block in enumerate(blocks_to_place):  # for each unique block still left to place at this level
         if block in visited_blocks:
-            if len(blocks_to_place) == 6:
-                print('should hit this 5 times')
             continue
 
         visited_blocks.append(block)
