@@ -1,10 +1,11 @@
 from LazorSolver import LazorSolver
 
 if __name__ == '__main__':
-    LazorSolver('dark_1.bff')
-    LazorSolver('mad_1.bff')
-    LazorSolver('mad_4.bff')
-    LazorSolver('mad_7.bff')
-    LazorSolver('numbered_6.bff')
-    LazorSolver('showstopper_4.bff')
-    LazorSolver('yarn_5.bff')
+    LazorSolver('bff/dark_1.bff')
+    LazorSolver('bff/mad_1.bff')
+    LazorSolver('bff/mad_4.bff')
+    LazorSolver('bff/mad_7.bff')
+    LazorSolver('bff/numbered_6.bff')
+    LazorSolver('bff/showstopper_4.bff')
+    LazorSolver('bff/yarn_5.bff')
+    LazorSolver('bff/tiny_5.bff')
