@@ -21,7 +21,7 @@ HOLE_CHAR='4'
 FREE_CHAR='0'
 
 
-def openBFF(filePointer: str = "dark_1.bff"):
+def openBFF(filePointer: str):
 
     # open the file
     file = open(filePointer, 'r').read()
@@ -113,7 +113,7 @@ def openBFF(filePointer: str = "dark_1.bff"):
             # iterate for extracted number of blocks
             for i in range(blockNumB):
                 # append the global value for B blocks to the block list for as many times as the extracted blockNum indicates
-                blockList.append(REFRACTIVE)
+                blockList.append(OPAQUE)
         # check for C blocks
         elif line.startswith("C"):
             # number of a blocks is assigned as the present line with the leading C striped,
@@ -123,15 +123,18 @@ def openBFF(filePointer: str = "dark_1.bff"):
             # iterate for extracted number of blocks
             for i in range(blockNumC):
                 # append the global value for C blocks to the block list for as many times as the extracted blockNum indicates
-                blockList.append(OPAQUE)
+                blockList.append(REFRACTIVE)
 
+    """
     print(grid)
     print(laserList)
     print(pointGoalList)
     print(blockList)
+    """
     return grid, laserList, pointGoalList, blockList
 
-# os.getcwd()
-file_path = os.getcwd() + '/dark_1.bff'
-# print(file_path)
-openBFF(file_path)
+if __name__ == '__main__':
+    # os.getcwd()
+    file_path = os.getcwd() + '/dark_1.bff'
+    # print(file_path)
+    openBFF(file_path)
