@@ -67,7 +67,7 @@ def generate_possible_configs(input_empty_board, blocks_to_place):
     empty_board = empty_board.flatten()
 
     free_site_idxs = [i for i, block in enumerate(empty_board) if block not in not_free_block_types]
-    possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs)
+    possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs, placed_sites=[])
     print('exited recurse_generate_boards call')
     print(f'initial return has {len(possible_configs)} boards')
     #print(f'board after step 1: {possible_configs[0]}')
@@ -86,9 +86,10 @@ def generate_possible_configs(input_empty_board, blocks_to_place):
     return possible_configs
 
 
-def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
+def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs, placed_sites):
     list_of_returned_configs = []  # should only hold complete, valid board configs
     visited_blocks = []
+    placed_block_types = [1, 2, 3]
 
     # base case: no more blocks to place, return input_board
     if len(blocks_to_place) == 0:
@@ -103,6 +104,14 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
 
         # for each free site where you can place this block in the input board
         for j, site in enumerate(free_site_idxs):
+            # top-level filter: don't place any block of the same kind as the top level block in any site before
+            # its last appearance...already covered by previous loops
+            if len(placed_sites) > 0:
+                sites = [z for z, placed_block in enumerate(input_board) if
+                         placed_block in placed_block_types and block == placed_block]
+                if len(sites) > 0 and site < sites[-1]:
+                    continue
+
             # recursive call with updated board and lists
             updated_board = [row for row in input_board]
             updated_board[site] = block  # place the block
@@ -110,7 +119,8 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
             updated_blocks_to_place.pop(i)
             updated_free_site_idxs = [site for site in free_site_idxs]
             updated_free_site_idxs.pop(j)
-            received_boards = recurse_generate_boards(updated_board, updated_blocks_to_place, updated_free_site_idxs)
+            updated_placed_sites = placed_sites + [site]
+            received_boards = recurse_generate_boards(updated_board, updated_blocks_to_place, updated_free_site_idxs, updated_placed_sites)
 
             list_of_returned_configs += received_boards  # add received boards to list of boards to return
 
