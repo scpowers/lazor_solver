@@ -57,23 +57,32 @@ class LazorSolver:
             print(f'solved in {end - start} seconds')
 
 
-def generate_possible_configs(empty_board, blocks_to_place):
+def generate_possible_configs(input_empty_board, blocks_to_place):
     not_free_block_types = [4, 5, 6, 7]
+    input_dims = []
+    input_dims.append(len([1 for l in input_empty_board]))
+    input_dims.append(len(input_empty_board[0]))
+    input_dims = tuple(input_dims)
 
     # convert to numpy array and flatten for the recursive function call
-    empty_board = np.array(empty_board)
+    empty_board = np.array(input_empty_board)
     empty_board = empty_board.flatten()
 
     free_site_idxs = [i for i, block in enumerate(empty_board) if block not in not_free_block_types]
 
     possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs)
+    #print(f'board after step 1: {possible_configs[0]}')
     # convert from 1D numpy arrays to 2D nested Python lists
     possible_configs = [*set([tuple(arr) for arr in possible_configs])]
+    #print(f'board after step 2: {possible_configs[0]}')
     possible_configs = [np.array(arr) for arr in possible_configs]
-    size = int(np.sqrt(len(empty_board)))
-    possible_configs = [arr.reshape(size, size) for arr in possible_configs]
+    #print(f'board after step 3: {possible_configs[0]}')
+    possible_configs = [arr.reshape(input_dims) for arr in possible_configs]
+    #print(f'board after step 4: {possible_configs[0]}')
     possible_configs = [[list(arr) for arr in sublist] for sublist in possible_configs]
+    #print(f'board after step 5: {possible_configs[0]}')
     possible_configs = [list(arr) for arr in possible_configs]
+    #print(f'board after step 6: {possible_configs[0]}')
     return possible_configs
 
 
@@ -108,56 +117,4 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
 
 
 if __name__ == '__main__':
-    solver = LazorSolver('mad_1.bff')
-    """
-    # for now, say 0 = free, 1 = reflect block, 2 = refract block
-    starting_board = np.array([[1, 0, 0, 1],
-                               [0, 0, 0, 0],
-                               [4, 0, 2, 4],
-                               [0, 0, 1, 0]])
-    starting_board = starting_board.flatten()
-    solved_board = None
-    points_to_hit = [[3, 0], [4, 3], [2, 5], [4, 7]]
-
-    start = time.perf_counter()
-    possible_configs = generate_possible_configs(starting_board)
-
-    for config in possible_configs:
-        tmp = Board(config, [[2, 7]], [[1, -1]])
-        tmp.get_laser_path()
-
-        total_visited_pts = []
-        for val in list(tmp.laser_visited_pts.values()):
-            total_visited_pts += val
-
-        if not np.any([pt not in total_visited_pts for pt in points_to_hit]):
-            print('supposedly found solution')
-            print(f'{config}')
-            solved_board = config
-            break
-    end = time.perf_counter()
-    if solved_board is None:
-        print('*** could not find a solution ***')
-    print(f'elapsed time for first board solving: {end - start}')
-
-    start = time.perf_counter()
-    possible_configs = generate_possible_configs(starting_board)
-
-    for config in possible_configs:
-        tmp = Board(config, [[2, 7]], [[1, -1]])
-        tmp.get_laser_path()
-
-        total_visited_pts = []
-        for val in list(tmp.laser_visited_pts.values()):
-            total_visited_pts += val
-
-        if not np.any([pt not in total_visited_pts for pt in points_to_hit]):
-            print('supposedly found solution')
-            print(f'{config}')
-            solved_board = config
-            break
-    end = time.perf_counter()
-    if solved_board is None:
-        print('*** could not find a solution ***')
-    print(f'elapsed time for second board solving: {end - start}')
-    """
+    solver = LazorSolver('mad_4.bff')
