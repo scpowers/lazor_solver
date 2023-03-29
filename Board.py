@@ -2,20 +2,75 @@ import numpy as np
 from numba import jit
 from numba.core.errors import NumbaPendingDeprecationWarning
 import warnings
-import time
 
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 
 class Board:
+    """
+    A class to represent a Lazors puzzle board with all relevant blocks placed.
+
+    **Attributes**
+
+        board: *list, list, int*
+            A double-nested list representing the cells and blocks on the board:
+                0 - free
+                1 - reflective block (placed)
+                2 - refractive block (placed)
+                3 - opaque block (placed)
+                4 - hole
+                5 - reflective block (fixed)
+                6 - refractive block (fixed)
+                7 - opaque block (fixed)
+        laser_pos: *list, list, int*
+            A double-nested list holding [x, y] coords of the laser sources
+        laser_dir: *list, list, int*
+            A double-nested list holding [vx, vy] directions of the laser sources
+        laser_visited_pts: *list, list, int*
+            A double-nested list holding [x, y] coords of points that the laser travels to given this board config
+
+    **Methods**
+
+        get_laser_path: computes the path that the laser takes given a board configuration
+            args - None
+        render_board: saves the board as a visually-interpretable grid image
+            args - None
+    """
 
     def __init__(self, initial_board, laser_pos, laser_dir):
+        """
+        Board class constructor
+
+        **Parameters**
+
+            initial_board: *list, list, int*
+                A double-nested list representing the cells and blocks on the board:
+            laser_pos: *list, list, int*
+                A double-nested list holding [x, y] coords of the laser sources
+            laser_dir: *list, list, int*
+                A double-nested list holding [vx, vy] directions of the laser sources
+
+        **Returns**
+
+            None
+        """
         self.board = initial_board  # initial config of board (with everything on it)
         self.laser_pos = laser_pos  # [x, y] position(s) of laser source(s) on grid where cells are 3x3 across
         self.laser_dir = laser_dir  # [dx, dy] direction(s) of laser source(s) on grid where cells are 3x3 across
         self.laser_visited_pts = []  # initialize empty list, need it later for rendering
 
     def get_laser_path(self):
+        """
+        Compute the path that the laser source(s) take through the given board configuration.
+
+        **Parameters**
+
+            None
+
+        **Returns**
+
+            None
+        """
         # convert board into grid using same convention as .bff file
         new_board = np.zeros((2*len(self.board) + 1, 2*len(self.board) + 1))
         for i, row in enumerate(self.board):
@@ -127,23 +182,59 @@ class Board:
         # store visited points as attribute
         self.laser_visited_pts = total_visited_pts
 
-
-    # TODO: render_board - draw board config + laser as grid image and save it
-    # Maranda
     def render_board():
+        """
+        Render the board configuration as a visually-interpretable grid image.
+
+        **Parameters**
+
+            None
+
+        **Returns**
+
+            None
+        """
 
         return []
 
 
 @jit(nopython=True)
-# check if a given position is within the gridded board
 def pos_check(coord_board, coords):
+    """
+    Check if a given position is within the gridded board.
+
+    **Parameters**
+
+        coord_board: *list, list, int*
+            Board represented by grid where each cell is 2 units wide
+        coords: *list, int*
+            [x, y] coordinate pair to check
+
+    **Returns**
+
+        *Boolean*
+            True if the given coordinates are within the board
+    """
     return 0 <= coords[0] < coord_board.shape[0] and 0 <= coords[1] < coord_board.shape[1]
 
 
 @jit(nopython=True)
-# get next relevant cell center
 def get_next_relevant_cell_center(latest_pos, direction):
+    """
+    Get the next relevant cell center coordinates.
+
+    **Parameters**
+
+        latest_pos: *list, int*
+            The latest position of the laser's path
+        direction: *list, int*
+            The latest direction of the laser's path
+
+    **Returns**
+
+        next_relevant_center_coords: *list, int*
+            The coordinates of the next relevant cell center (in the path of the laser)
+    """
     # case 1: latest position is within a vertical slice between cells
     if latest_pos[0] % 2 == 0:
         if direction[0] > 0:
@@ -159,8 +250,32 @@ def get_next_relevant_cell_center(latest_pos, direction):
     return next_relevant_center_coords
 
 
-# get next position and direction of the laser path
 def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, direction, backtracking_options):
+    """
+    Get the next position and direction of the laser path.
+
+    **Parameters**
+
+        new_board: *list, list, int*
+            Double-nested list representing the current board state
+        next_relevant_center_coords: *list, int*
+            The coordinates of the next cell center in the path of the laser
+        latest_pos: *list, int*
+            The latest position of the laser's path
+        direction: *list, int*
+            The latest direction of the laser's path
+        backtracking_options: *dict*
+            Dictionary holding backtracking options for refractive cells, where keys are
+                ((center_x, center_y), (latest_pos_x, latest_pos_y), (direction_x, direction_y))
+                and values are [[latest_pos_x, latest_pos_y], [next_direction_x, next_direction_y]]
+
+    **Returns**
+
+        next_pos: *list, int*
+            The coordinates of the next position in the laser path
+        next_direction: *list, int*
+            The next direction that the laser path will take
+    """
     next_relevant_cell_val = new_board[next_relevant_center_coords[0], next_relevant_center_coords[1]]
 
     # case 1: the next relevant cell is empty or a hole
@@ -226,29 +341,25 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
 
 
 @jit(nopython=True)
-# helper method to determine whether the next relevant cell implies that the laser path should end here
 def should_laser_path_end(new_board, next_relevant_center_coords):
+    """
+    Determine whether the next relevant cell implies that the laser path should end at this point.
+
+    **Parameters**
+
+        new_board: *list, list, int*
+            Double-nested list representing the current board state
+        next_relevant_center_coords: *list, int*
+            The coordinates of the next cell center in the path of the laser
+
+    **Returns**
+
+        *boolean*
+            True if the path should end at this point.
+    """
     # just care whether the next cell is off the board OR it's an opaque cell
     if not pos_check(new_board, next_relevant_center_coords) or new_board[next_relevant_center_coords[0],
                                                                           next_relevant_center_coords[1]] == 3:
         return True
     else:
         return False
-
-
-if __name__ == '__main__':
-    formatted_board = [[0, 0, 1, 0],
-                       [1, 0, 0, 1],
-                       [4, 2, 0, 4],
-                       [0, 0, 0, 0]]
-    test_board = Board(formatted_board, [[2, 7]], [[1, -1]])
-    start = time.perf_counter()
-    test_board.get_laser_path()
-    end = time.perf_counter()
-    print(f'elapsed with compilation: {end-start}')
-    """
-    start = time.perf_counter()
-    test_board.get_laser_path()
-    end = time.perf_counter()
-    print(f'elapsed after compilation: {end-start}')
-    """
