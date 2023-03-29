@@ -68,6 +68,8 @@ class Board:
                     # backtrack until either your next relevant cell center is a refractive block or the queue empties
                     laser_path.pop()
                     laser_dir_history.pop()
+                    if len(laser_path) == 0:
+                        break
                     backtracked_center_coords = get_next_relevant_cell_center(laser_path[-1], laser_dir_history[-1])
                     backtracked_center_val = new_board[backtracked_center_coords[0], backtracked_center_coords[1]]
                     while len(laser_path) > 0 and \
