@@ -2,44 +2,75 @@ from Board import Board
 import numpy as np
 from copy import deepcopy
 import time
+from bffParser import openBFF
 
 
 class LazorSolver:
 
     def __init__(self, file_ptr):
-        initial_board = self.parse_bff(file_ptr)
-        self.board = Board(initial_board)
+        print(f'attempting to solve {file_ptr}...')
+        self.empty_board = None
+        self.laser_pos_list = []
+        self.laser_dir_list = []
+        self.pointGoalList = None
+        self.block_list = None
+        self.solved_board = None
+        self.unique_boards = []
+        self.parse_bff(file_ptr)
         self.solve()
 
     def parse_bff(self, file_ptr):
-        # TODO: parse .bff and return list or dict describing initial board config
-        return []
+        grid, laserList, pointGoalList, blockList = openBFF(file_ptr)
+        self.empty_board = grid
+        self.pointGoalList = pointGoalList
+        self.block_list = blockList
+        for laser in laserList:
+            self.laser_pos_list.append(laser[0:2])
+            self.laser_dir_list.append(laser[2:])
 
-    # TODO: solve - adjust board configuration until the puzzle is solved
+    def generate_possible_boards(self):
+        possible_configs = generate_possible_configs(self.empty_board, self.block_list)
+        for filled_board in possible_configs:
+            b = Board(filled_board, self.laser_pos_list, self.laser_dir_list)
+            self.unique_boards.append(b)
+
     def solve(self):
-        pass
+        start = time.perf_counter()
+        self.generate_possible_boards()
+        for board in self.unique_boards:
+            board.get_laser_path()
+
+            total_visited_pts = []
+            for val in list(board.laser_visited_pts.values()):
+                total_visited_pts += val
+
+            if not np.any([pt not in total_visited_pts for pt in self.pointGoalList]):
+                print('found solution')
+                print(f'{board.board}')
+                self.solved_board = board
+                break
+
+        end = time.perf_counter()
+        if self.solved_board is None:
+            print('*** could not find a solution ***')
+        else:
+            print(f'solved in {end - start} seconds')
 
 
-def generate_possible_configs(starting_board):
-    free_block_types = [1, 2, 3]
+def generate_possible_configs(empty_board, blocks_to_place):
     not_free_block_types = [4, 5, 6, 7]
-    free_site_idxs = [i for i, block in enumerate(starting_board) if block not in not_free_block_types]
-    print(f'indices of free sites for block placement: {free_site_idxs}')
-    num_free_sites = len(free_site_idxs)
-    print(f'number of free sites for block placement: {num_free_sites}')
-    blocks_to_place = [block for block in starting_board if block in free_block_types]
-    print(f'blocks to place: {blocks_to_place}')
-    unique_blocks_to_place = set(blocks_to_place)
-    print(f'unique blocks to place: {unique_blocks_to_place}')
 
-    # empty board is either 0's (free), 4's (holes), or 5-7's (fixed blocks)
-    empty_board = np.array([0 if i not in not_free_block_types else i for i in starting_board])
+    # convert to numpy array and flatten for the recursive function call
+    empty_board = np.array(empty_board)
+    empty_board = empty_board.flatten()
+
+    free_site_idxs = [i for i, block in enumerate(empty_board) if block not in not_free_block_types]
 
     possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs)
     # convert from 1D numpy arrays to 2D nested Python lists
     possible_configs = [*set([tuple(arr) for arr in possible_configs])]
     possible_configs = [np.array(arr) for arr in possible_configs]
-    size = int(np.sqrt(len(starting_board)))
+    size = int(np.sqrt(len(empty_board)))
     possible_configs = [arr.reshape(size, size) for arr in possible_configs]
     possible_configs = [[list(arr) for arr in sublist] for sublist in possible_configs]
     possible_configs = [list(arr) for arr in possible_configs]
@@ -77,6 +108,8 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
 
 
 if __name__ == '__main__':
+    solver = LazorSolver('mad_1.bff')
+    """
     # for now, say 0 = free, 1 = reflect block, 2 = refract block
     starting_board = np.array([[1, 0, 0, 1],
                                [0, 0, 0, 0],
@@ -127,3 +160,4 @@ if __name__ == '__main__':
     if solved_board is None:
         print('*** could not find a solution ***')
     print(f'elapsed time for second board solving: {end - start}')
+    """
