@@ -3,6 +3,11 @@ import numpy as np
 from copy import deepcopy
 import time
 from bffParser import openBFF
+from numba import jit
+from numba.core.errors import NumbaPendingDeprecationWarning
+import warnings
+
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 
 class LazorSolver:
@@ -57,57 +62,65 @@ class LazorSolver:
             print(f'solved in {end - start} seconds')
 
 
+#@jit(nopython=True)
 def generate_possible_configs(input_empty_board, blocks_to_place):
     not_free_block_types = [4, 5, 6, 7]
     input_dims = []
     input_dims.append(len([1 for l in input_empty_board]))
     input_dims.append(len(input_empty_board[0]))
-    input_dims = tuple(input_dims)
 
     # convert to numpy array and flatten for the recursive function call
     empty_board = np.array(input_empty_board)
     empty_board = empty_board.flatten()
 
     free_site_idxs = [i for i, block in enumerate(empty_board) if block not in not_free_block_types]
-
     possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs)
+    print('exited recurse_generate_boards call')
     #print(f'board after step 1: {possible_configs[0]}')
     # convert from 1D numpy arrays to 2D nested Python lists
     possible_configs = [*set([tuple(arr) for arr in possible_configs])]
     #print(f'board after step 2: {possible_configs[0]}')
     possible_configs = [np.array(arr) for arr in possible_configs]
     #print(f'board after step 3: {possible_configs[0]}')
-    possible_configs = [arr.reshape(input_dims) for arr in possible_configs]
+    possible_configs = [arr.reshape((input_dims[0], input_dims[1])) for arr in possible_configs]
     #print(f'board after step 4: {possible_configs[0]}')
     possible_configs = [[list(arr) for arr in sublist] for sublist in possible_configs]
     #print(f'board after step 5: {possible_configs[0]}')
     possible_configs = [list(arr) for arr in possible_configs]
     #print(f'board after step 6: {possible_configs[0]}')
+    print(f'found {len(possible_configs)} unique board configs')
     return possible_configs
 
 
+@jit(nopython=True)
 def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
+    list_of_returned_configs = [[0] for i in range(0)]  # should only hold complete, valid board configs
     # base case: no more blocks to place, return input_board
     if len(blocks_to_place) == 0:
-        return [input_board]
+        list_of_returned_configs.append(list(input_board))
+        return list_of_returned_configs
 
-    list_of_returned_configs = []  # should only hold complete, valid board configs
-    visited_blocks = []
+    visited_blocks = [0 for i in range(0)]
 
     for i, block in enumerate(blocks_to_place):  # for each unique block still left to place at this level
         if block in visited_blocks:
+            if len(blocks_to_place) == 6:
+                print('should hit this 5 times')
             continue
 
         visited_blocks.append(block)
 
         # for each free site where you can place this block in the input board
         for j, site in enumerate(free_site_idxs):
-            updated_board = deepcopy(input_board)
+            #updated_board = deepcopy(input_board)
+            updated_board = [row for row in input_board]
             updated_board[site] = block  # place the block
             # recursive call with updated board and lists
-            updated_blocks_to_place = deepcopy(blocks_to_place)
+            #updated_blocks_to_place = deepcopy(blocks_to_place)
+            updated_blocks_to_place = [block for block in blocks_to_place]
             updated_blocks_to_place.pop(i)
-            updated_free_site_idxs = deepcopy(free_site_idxs)
+            #updated_free_site_idxs = deepcopy(free_site_idxs)
+            updated_free_site_idxs = [site for site in free_site_idxs]
             updated_free_site_idxs.pop(j)
             received_boards = recurse_generate_boards(updated_board, updated_blocks_to_place, updated_free_site_idxs)
 
@@ -117,4 +130,4 @@ def recurse_generate_boards(input_board, blocks_to_place, free_site_idxs):
 
 
 if __name__ == '__main__':
-    solver = LazorSolver('mad_4.bff')
+    solver = LazorSolver('dark_1.bff')
