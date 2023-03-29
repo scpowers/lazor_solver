@@ -68,8 +68,8 @@ def generate_possible_configs(input_empty_board, blocks_to_place):
 
     free_site_idxs = [i for i, block in enumerate(empty_board) if block not in not_free_block_types]
     possible_configs = recurse_generate_boards(empty_board, blocks_to_place, free_site_idxs, placed_sites=[])
-    print('exited recurse_generate_boards call')
-    print(f'initial return has {len(possible_configs)} boards')
+    #print('exited recurse_generate_boards call')
+    #print(f'initial return has {len(possible_configs)} boards')
     #print(f'board after step 1: {possible_configs[0]}')
     # convert from 1D numpy arrays to 2D nested Python lists
     possible_configs = [*set([tuple(arr) for arr in possible_configs])]
@@ -82,7 +82,7 @@ def generate_possible_configs(input_empty_board, blocks_to_place):
     #print(f'board after step 5: {possible_configs[0]}')
     possible_configs = [list(arr) for arr in possible_configs]
     #print(f'board after step 6: {possible_configs[0]}')
-    print(f'found {len(possible_configs)} unique board configs')
+    #print(f'found {len(possible_configs)} unique board configs')
     return possible_configs
 
 
