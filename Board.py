@@ -33,8 +33,10 @@ class Board:
 
         get_laser_path: computes the path that the laser takes given a board configuration
             args - None
+            returns - None
         render_board: saves the board as a visually-interpretable grid image
             args - None
+            returns - None
     """
 
     def __init__(self, initial_board, laser_pos, laser_dir):
