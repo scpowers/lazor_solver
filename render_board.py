@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Mar 30 06:04:43 2023
+Created on Tue Mar 28 06:04:43 2023
 
-@author: Maranda Mcdonald
+@author: Maranda McDonald
 """
 from PIL import Image, ImageDraw
 
@@ -12,7 +12,7 @@ def get_colors():
         Color Dictionary
         8 - BlackGray - The background
         5 - White - A reflect block
-        6 - Black - A black block
+        6 - Black - A refractive block
         7 - transparent - A transparent block
         4 - Gray - A possible space for putting block
         0 - BlackGray - A place that could not have block
@@ -126,7 +126,7 @@ def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
                          lazor_pos[0] * dimensions / 2 + 10, lazor_pos[1] * dimensions / 2 + 10], fill=(255, 0, 0))
 
     
-    #To color 
+    #To color the point goals
     for i in range(len(pointGoalList)):
         img_new.ellipse([pointGoalList[i][0] * dimensions / 2 - 10, pointGoalList[i][1] * dimensions / 2 - 10,
                          pointGoalList[i][0] * dimensions / 2 + 10, pointGoalList[i][1] * dimensions / 2 + 10], fill=(255, 255, 255), outline="red", width=2)
