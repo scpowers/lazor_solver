@@ -10,6 +10,8 @@ class LazorSolver:
 
     **Attributes**
 
+        file_ptr: *str*
+            A string pointing to the .bff file to solve
         empty_board: *list, list, int*
             A double-nested list representing the given puzzle board with none of the placeable blocks on it
         laser_pos_list: *list, list, int*
@@ -55,6 +57,7 @@ class LazorSolver:
             None
         """
         print(f'attempting to solve {file_ptr}...')
+        self.file_ptr = file_ptr
         self.empty_board = None
         self.laser_pos_list = []
         self.laser_dir_list = []
@@ -63,23 +66,22 @@ class LazorSolver:
         self.solved_board = None
         self.unique_boards = []
 
-        self.parse_bff(file_ptr)
+        self.parse_bff()
         self.solve()
 
-    def parse_bff(self, file_ptr):
+    def parse_bff(self):
         """
         Parse a given .bff file to extract the information needed to solve the puzzle.
 
         **Parameters**
 
-            file_ptr: *str*
-                A string pointing to the .bff file to solve
+            None
 
         **Returns**
 
             None
         """
-        grid, laserList, pointGoalList, blockList = openBFF(file_ptr)
+        grid, laserList, pointGoalList, blockList = openBFF(self.file_ptr)
         self.empty_board = grid
         self.pointGoalList = pointGoalList
         self.block_list = blockList
@@ -101,7 +103,7 @@ class LazorSolver:
         """
         possible_configs = generate_possible_configs(self.empty_board, self.block_list)
         for filled_board in possible_configs:
-            b = Board(filled_board, self.laser_pos_list, self.laser_dir_list)
+            b = Board(filled_board, self.laser_pos_list, self.laser_dir_list, self.file_ptr)
             self.unique_boards.append(b)
 
     def solve(self):
@@ -136,6 +138,9 @@ class LazorSolver:
             print('*** could not find a solution ***')
         else:
             print(f'solved in {end - start} seconds')
+            print('rendering solution board...')
+            self.solved_board.render_board()
+            print('done.\n')
 
 
 def generate_possible_configs(input_empty_board, blocks_to_place):

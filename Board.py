@@ -1,6 +1,7 @@
 import numpy as np
 from numba import jit
 from numba.core.errors import NumbaPendingDeprecationWarning
+from render_board import render_board
 import warnings
 
 warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
@@ -28,6 +29,8 @@ class Board:
             A double-nested list holding [vx, vy] directions of the laser sources
         laser_visited_pts: *list, list, int*
             A double-nested list holding [x, y] coords of points that the laser travels to given this board config
+        file_ptr: *str*
+            A string pointing to the .bff file that was used to generate this board
 
     **Methods**
 
@@ -39,7 +42,7 @@ class Board:
             returns - None
     """
 
-    def __init__(self, initial_board, laser_pos, laser_dir):
+    def __init__(self, initial_board, laser_pos, laser_dir, file_ptr):
         """
         Board class constructor
 
@@ -59,6 +62,7 @@ class Board:
         self.board = initial_board  # initial config of board (with everything on it)
         self.laser_pos = laser_pos  # [x, y] position(s) of laser source(s) on grid where cells are 3x3 across
         self.laser_dir = laser_dir  # [dx, dy] direction(s) of laser source(s) on grid where cells are 3x3 across
+        self.file_ptr = file_ptr
         self.laser_visited_pts = []  # initialize empty list, need it later for rendering
 
     def get_laser_path(self):
@@ -184,7 +188,7 @@ class Board:
         # store visited points as attribute
         self.laser_visited_pts = total_visited_pts
 
-    def render_board():
+    def render_board(self):
         """
         Render the board configuration as a visually-interpretable grid image.
 
@@ -196,8 +200,8 @@ class Board:
 
             None
         """
-
-        return []
+        laser_list = [pos + self.laser_dir[i] for i, pos in enumerate(self.laser_pos)]
+        render_board(self.board, laser_list, self.file_ptr)
 
 
 @jit(nopython=True)
