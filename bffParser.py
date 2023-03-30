@@ -9,8 +9,8 @@ import os
 # define values for parser usage later
 FREE = 0  # o block
 REFLECTIVE = 1  # A block
-REFRACTIVE = 2  # B block
-OPAQUE = 3  # C block
+REFRACTIVE = 2  # C block
+OPAQUE = 3  # B block
 HOLE = 4  # x block
 FIXED_REFLECTIVE = 5
 FIXED_REFRACTIVE = 6
@@ -25,6 +25,28 @@ FREE_CHAR='0'
 
 
 def openBFF(filePointer: str):
+    '''
+    This methods opens and parses a .BFF file at a given directory, then returns a dictonary
+    of the parsed grid of the file, the lazor origins and trajectory, the coordinates of the
+    laser goal points, and a list of all moveable blocks available to reach a solution
+    
+    **Parameters**
+
+        filePointer: *str*
+            String representing the location of the desired bff file to open and parse
+
+    **Returns**
+
+        grid: *list, list, int*
+            List of integer lists presenting a 2D represention of the parsed board file including
+            the locations of fixed blocks, holes in the board where no blocks may be placed, and
+            open spaces in the board where blocks can be placed
+
+
+        laserList: *list, list, int*
+        pointGoalList: *list, list, int*
+        blockList: *list, int*      
+    '''
 
     # open the file
     file = open(filePointer, 'r').read()
@@ -95,7 +117,6 @@ def openBFF(filePointer: str):
             # then apply map function to cast the string to an integer,
             # then cast the map output to a list,
             # then append this list to pointGoalList
-            thisLine = list(map(int, line.strip('P').strip().split()))
             # pointGoalList.append(line.strip('P').strip().split())
             pointGoalList.append(
                 list(map(int, line.strip('P').strip().split())))
@@ -137,7 +158,5 @@ def openBFF(filePointer: str):
     return grid, laserList, pointGoalList, blockList
 
 if __name__ == '__main__':
-    # os.getcwd()
-    file_path = os.getcwd() + '/dark_1.bff'
-    # print(file_path)
+    file_path = os.getcwd() + '/bff/dark_1.bff'
     openBFF(file_path)
