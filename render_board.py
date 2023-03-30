@@ -10,12 +10,14 @@ from PIL import Image, ImageDraw
 def get_colors():
     '''
         Color Dictionary
-        8 - BlackGray - The background
-        5 - White - A reflect block
-        6 - Black - A refractive block
-        7 - transparent - A transparent block
-        4 - Gray - A possible space for putting block
-        0 - BlackGray - A place that could not have block
+        0 - free
+        1 - White - reflective block (placed)
+        2 - Black - refractive block (placed)
+        3 - Pink - opaque block (placed)
+        4 - hole
+        5 - Silver - reflective block (fixed)
+        6 - Gold - refractive block (fixed)
+        7 - Cobalt - opaque block (fixed)
 
     **Returns**
 
@@ -24,9 +26,12 @@ def get_colors():
     '''
     return {
         8: (20, 20, 20),
-        5: (255, 255, 255),
-        6: (0, 0, 0),
-        7: (255, 0, 0),
+        1: (255, 255, 255),
+        2: (0, 0, 0),
+        3: (255, 192, 203),
+        5: (192, 192, 192),
+        6: (255, 215, 0),
+        7: (0, 71, 171),
         0: (100, 100, 100),
         4: (50, 50, 50),
     }
@@ -64,15 +69,6 @@ def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
             exactly 2 elements. Coordinate 0,0 is the top left.
 
             [[x_coordinate,y_coordinate]...]
-
-        blockList: *list, int*
-            An integer list storing the type and number of every block available in the given bff file that
-            can be moved to solve the board. The number of occurances of each element in the list represents
-            the number of those blocks that are present. The value at each element indicates the type of block.
-
-            1 = REFLECTIVE
-            2 = REFRACTIVE
-            3 = OPAQUE
     
         filename: *str*
             TThe desired name of the final .png file
@@ -93,7 +89,7 @@ def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
 
     img = Image.new("RGB", (dimx, dimy), color=0)
 
-    
+    #Define the size of the board
     for jy in range(nSizey):
         for jx in range(nSizex):
             x = jx * dimensions
@@ -132,6 +128,7 @@ def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
                          pointGoalList[i][0] * dimensions / 2 + 10, pointGoalList[i][1] * dimensions / 2 + 10], fill=(255, 255, 255), outline="red", width=2)
 
     #To name the image file
+    #This will say "solved", even though any board can be sent to this function
     if not filename.endswith(".png"):
         filename_new = '.'.join(filename.split(".")[0:-1])
         filename_new += "_solved.png"
@@ -141,10 +138,9 @@ def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
 
 #This is an example of the info passed to save an image for dark1_.bff
 fptr="dark_1.bff"
-grid=[[4, 0, 0], [0, 0, 0], [0, 0, 4]]
+grid=[[4, 0, 0], [1, 2, 3], [5, 6, 7]]
 laserList=[[3, 0, -1, 1], [1, 6, 1, -1], [3, 6, -1, -1], [4, 3, 1, -1]]
 pointGoalList=[[0, 3], [6, 1]]
-blockList=[3, 3, 3]
 
 render_board(grid=grid,laserList=laserList,
                   pointGoalList=pointGoalList, filename=fptr)
