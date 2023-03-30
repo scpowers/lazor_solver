@@ -15,13 +15,13 @@ HOLE = 4  # x block
 FIXED_REFLECTIVE = 5
 FIXED_REFRACTIVE = 6
 FIXED_OPAQUE = 7
-UNAVAILABLE_GRID_KEY='x'
-FREE_GRID_KEY='o'
+UNAVAILABLE_GRID_KEY = 'x'
+FREE_GRID_KEY = 'o'
 FIXED_REFLECTIVE_KEY = 'A'
 FIXED_OPAQUE_KEY = 'B'
 FIXED_REFRACTIVE_KEY = 'C'
-HOLE_CHAR='4'
-FREE_CHAR='0'
+HOLE_CHAR = '4'
+FREE_CHAR = '0'
 
 
 def openBFF(filePointer: str):
@@ -29,7 +29,7 @@ def openBFF(filePointer: str):
     This methods opens and parses a .BFF file at a given directory, then returns a dictonary
     of the parsed grid of the file, the lazor origins and trajectory, the coordinates of the
     laser goal points, and a list of all moveable blocks available to reach a solution
-    
+
     **Parameters**
 
         filePointer: *str*
@@ -42,27 +42,44 @@ def openBFF(filePointer: str):
             the locations of fixed blocks, holes in the board where no blocks may be placed, and
             open spaces in the board where blocks can be placed
 
+            0 = free space to place a block
+            4 = hole in the board where a laser can pass through unimpeded but no block can be placed
+            5 = Fixed reflective block
+            6 = Fixed refractive block
+            7 = Fixed opaque block
 
         laserList: *list, list, int*
+            List of integer lists specifying the origin coordinates and trajectory of each laser beam. Each
+            interior list represents one laser 'emitter'. The length of the outside/containing list holding
+            the inside lists may be arbitrarily long but length of every inside list is exactly 4 elements.
+            The first element of the inside list is the x orgin, the followed by the y origin, followed by 
+            +/-1 for the x direction, then +/-1 for the y direction. Coordinate 0,0 is the top left.
+
+            [[x_origin,y_origin,+-1,+-1]...]
+
         pointGoalList: *list, list, int*
-        blockList: *list, int*      
+            List of integer lists containing the coordinates of goal points that must have a laser pass
+            through them. Each individual 2 element list contained within the outer list represents the
+            x and y coordinate of a single point. There may be multiple points and so the number of lists
+            contained in the outer list can be arbitrarily large, however each of these inner lists is
+            exactly 2 elements. Coordinate 0,0 is the top left.
+
+            [[x_coordinate,y_coordinate]...]
+
+        blockList: *list, int*
+            An integer list storing the type and number of every block available in the given bff file that
+            can be moved to solve the board. The number of occurances of each element in the list represents
+            the number of those blocks that are present. The value at each element indicates the type of block.
+
+            1 = REFLECTIVE
+            2 = REFRACTIVE
+            3 = OPAQUE
     '''
 
     # open the file
     file = open(filePointer, 'r').read()
 
-    # the length of GRID START is 11 characters, hence I add 11 charactes to the index it was first found
-    gridStart = 11+file.find("GRID START")
-    gridEnd = file.find("GRID STOP")
-
-    # gridString = file[gridStart:gridEnd].strip()
-    # grid=gridString.split('\n')
-
-    # print(gridString)
-    # print(grid)
-
-    # alternative approach
-
+    # strip leading spaces and newlines, then split on new lines and assign each line as an element of a string list
     lineSplitFile = file.strip().splitlines()
 
     # the line preceding the one where grid start was identified
@@ -80,12 +97,13 @@ def openBFF(filePointer: str):
     # lambda function below splits a given line into a list of values
     def lineList(gridLine): return gridLine.split()
 
-    ###CONVERSION OF STRING GRID TO NUMERICAL GRID
-    #lambda function below converts the x and o characters to numerical strings 
-    convertGridSymbol = lambda newLine : newLine.replace(UNAVAILABLE_GRID_KEY, HOLE_CHAR).replace(FREE_GRID_KEY,FREE_CHAR).replace(FIXED_REFLECTIVE_KEY,str(FIXED_REFLECTIVE)).replace(FIXED_REFRACTIVE_KEY,str(FIXED_REFRACTIVE)).replace(FIXED_OPAQUE_KEY,str(FIXED_OPAQUE))
+    # CONVERSION OF STRING GRID TO NUMERICAL GRID
+    # lambda function below converts the x and o characters to numerical strings
+    def convertGridSymbol(newLine): return newLine.replace(UNAVAILABLE_GRID_KEY, HOLE_CHAR).replace(FREE_GRID_KEY, FREE_CHAR).replace(
+        FIXED_REFLECTIVE_KEY, str(FIXED_REFLECTIVE)).replace(FIXED_REFRACTIVE_KEY, str(FIXED_REFRACTIVE)).replace(FIXED_OPAQUE_KEY, str(FIXED_OPAQUE))
 
     # cast result of map function appied to gridString and assign as grid
-    grid = list(map(lineList, list(map(convertGridSymbol,gridString))))
+    grid = list(map(lineList, list(map(convertGridSymbol, gridString))))
     grid = [list(map(int, l)) for l in grid]
 
     # list of list storing the laser origin and tragectory, for now is initialized as an empty string to inform python that it has a job to do
@@ -95,7 +113,7 @@ def openBFF(filePointer: str):
     # list of list storing the points the lasers must pass through
     pointGoalList = []
 
-    ###BLOCK, POINT, AND LASER PARSING###
+    ### BLOCK, POINT, AND LASER PARSING###
     # iterate from the end of the grid to the end of the file to avoid capturing values within the grid string
     for line in lineSplitFile[stopGridLine+1:]:
         # check for lazor trajectory
@@ -149,13 +167,8 @@ def openBFF(filePointer: str):
                 # append the global value for C blocks to the block list for as many times as the extracted blockNum indicates
                 blockList.append(REFRACTIVE)
 
-    """
-    print(grid)
-    print(laserList)
-    print(pointGoalList)
-    print(blockList)
-    """
     return grid, laserList, pointGoalList, blockList
+
 
 if __name__ == '__main__':
     file_path = os.getcwd() + '/bff/dark_1.bff'
