@@ -36,7 +36,7 @@ def get_colors():
         4: (50, 50, 50),
     }
 
-def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
+def render_board(grid, laserList, filename, dimensions=100):
     '''
    
     **Parameters**
@@ -123,9 +123,11 @@ def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
 
     
     #To color the point goals
+    """
     for i in range(len(pointGoalList)):
         img_new.ellipse([pointGoalList[i][0] * dimensions / 2 - 10, pointGoalList[i][1] * dimensions / 2 - 10,
                          pointGoalList[i][0] * dimensions / 2 + 10, pointGoalList[i][1] * dimensions / 2 + 10], fill=(255, 255, 255), outline="red", width=2)
+    """
 
     #To name the image file
     #This will say "solved", even though any board can be sent to this function
@@ -136,11 +138,11 @@ def render_board(grid, laserList, pointGoalList, filename, dimensions=100):
     img.save("%s" % filename_new)
 
 
-#This is an example of the info passed to save an image for dark1_.bff
-fptr="dark_1.bff"
-grid=[[4, 0, 0], [1, 2, 3], [5, 6, 7]]
-laserList=[[3, 0, -1, 1], [1, 6, 1, -1], [3, 6, -1, -1], [4, 3, 1, -1]]
-pointGoalList=[[0, 3], [6, 1]]
+if __name__ == "__main__":
+    #This is an example of the info passed to save an image for dark1_.bff
+    fptr="dark_1.bff"
+    grid=[[4, 0, 0], [1, 2, 3], [5, 6, 7]]
+    laserList=[[3, 0, -1, 1], [1, 6, 1, -1], [3, 6, -1, -1], [4, 3, 1, -1]]
+    #pointGoalList=[[0, 3], [6, 1]]
 
-render_board(grid=grid,laserList=laserList,
-                  pointGoalList=pointGoalList, filename=fptr)
+    render_board(grid=grid, laserList=laserList, filename=fptr)
