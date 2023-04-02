@@ -125,7 +125,6 @@ class Board:
                 # check cell behavior at the next relevant center
                 should_path_end = should_laser_path_end(new_board, next_relevant_center_coords)
                 if should_path_end:
-                    #print('apparently the path either went off the grid or hit an opaque block, backtracking...')
                     # backtrack until either your next relevant cell center is a refractive block or the queue empties
                     laser_path.pop()
                     laser_dir_history.pop()
@@ -150,7 +149,6 @@ class Board:
                     if next_pos is None:
                         # backtrack until either your next relevant cell center is a different refractive block
                         # or the queue empties
-                        #print('alternative route for refractive cell already explored, backtracking...')
                         laser_path.pop()
                         laser_dir_history.pop()
                         if len(laser_path) == 0:
@@ -181,7 +179,6 @@ class Board:
                     else:
                         # update
                         laser_path.append(next_pos)
-                        #print(f'updated laser path: {laser_path}')
                         laser_dir_history.append(next_direction)
                         iter += 1
 
@@ -291,7 +288,6 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
 
     # case 2: the next relevant cell is a reflective cell, so change direction
     elif next_relevant_cell_val == 1 or next_relevant_cell_val == 5:
-        #print('encountered a reflective cell')
         next_pos = latest_pos  # position is unchanged
         # if you're in a vertical slice between cells, just changing dx
         if latest_pos[0] % 2 == 0:
@@ -301,19 +297,15 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
 
     # case 3: the next relevant cell is a refractive cell, so initially pass through it but backtrack later and reflect
     elif next_relevant_cell_val == 2 or next_relevant_cell_val == 6:
-        #print('encountered a refractive cell')
         # first, check if we've encountered this before (at the same previous position and direction)
         tmp_key = (tuple(next_relevant_center_coords), tuple(latest_pos), tuple(direction))
-        #print(f'tmp_key: {tmp_key}')
         if tmp_key not in list(backtracking_options.keys()):
-            #print('apparently this is a new refractive cell')
             # create entry with the other next_pos and next_direction for when you backtrack here
             if latest_pos[0] % 2 == 0:
                 next_direction = [-1 * direction[0], direction[1]]
             else:
                 next_direction = [direction[0], -1 * direction[1]]
             backtracking_options[tmp_key] = [latest_pos, next_direction]
-            #print(f'keys in backtracking_options at this point: {list(backtracking_options.keys())}')
 
             # move normally through the refractive block like it's clear
             next_pos = [latest_pos[0] + direction[0], latest_pos[1] + direction[1]]  # move normally by one step
@@ -326,7 +318,6 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
                 next_pos = None
                 next_direction = None
             else:
-                #print('taking alternate route')
                 next_pos = backtracking_options[tmp_key][0]
                 next_direction = backtracking_options[tmp_key][1]
                 # wipe the alternate route so you don't take it again
@@ -334,15 +325,12 @@ def get_next_laser_pos_dir(new_board, next_relevant_center_coords, latest_pos, d
 
     # case 4: the next relevant cell is an opaque cell, so the beam stops here
     elif next_relevant_cell_val == 3 or next_relevant_cell_val == 7:
-        #print('encountered an opaque cell, but should not hit this case because of flow control')
         next_pos = None
         next_direction = None
 
     else:
-        #print(f'cell type {next_relevant_cell_val} not supported yet')
         return
 
-    #print(f'--- received next pos {next_pos} and next direction {next_direction} ---')
     return next_pos, next_direction
 
 
