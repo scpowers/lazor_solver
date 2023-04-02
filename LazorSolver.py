@@ -129,7 +129,6 @@ class LazorSolver:
 
             if not np.any([pt not in total_visited_pts for pt in self.pointGoalList]):
                 print('found solution')
-                print(f'{board.board}')
                 self.solved_board = board
                 break
 
@@ -137,8 +136,8 @@ class LazorSolver:
         if self.solved_board is None:
             print('*** could not find a solution ***')
         else:
-            print(f'solved in {end - start} seconds')
-            print('rendering solution board...')
+            print(f'solved in {round(end - start, 2)} seconds')
+            print('rendering solution board in original .bff file directory...')
             self.solved_board.render_board()
             print('done.\n')
 
