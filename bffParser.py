@@ -1,10 +1,8 @@
-'''
+"""
 @Author: Nick Bruns
 @Created: 3/14/2023
 Parses a BFF board file for the lazors mobile game
-'''
-
-import os
+"""
 
 # define values for parser usage later
 FREE = 0  # o block
@@ -25,10 +23,10 @@ FREE_CHAR = '0'
 
 
 def openBFF(filePointer: str):
-    '''
-    This methods opens and parses a .BFF file at a given directory, then returns a dictonary
+    """
+    This method opens and parses a .BFF file at a given directory, then returns a dictionary
     of the parsed grid of the file, the lazor origins and trajectory, the coordinates of the
-    laser goal points, and a list of all moveable blocks available to reach a solution
+    laser goal points, and a list of all movable blocks available to reach a solution
 
     **Parameters**
 
@@ -38,7 +36,7 @@ def openBFF(filePointer: str):
     **Returns**
 
         grid: *list, list, int*
-            List of integer lists presenting a 2D represention of the parsed board file including
+            List of integer lists presenting a 2D representation of the parsed board file including
             the locations of fixed blocks, holes in the board where no blocks may be placed, and
             open spaces in the board where blocks can be placed
 
@@ -52,7 +50,7 @@ def openBFF(filePointer: str):
             List of integer lists specifying the origin coordinates and trajectory of each laser beam. Each
             interior list represents one laser 'emitter'. The length of the outside/containing list holding
             the inside lists may be arbitrarily long but length of every inside list is exactly 4 elements.
-            The first element of the inside list is the x orgin, the followed by the y origin, followed by 
+            The first element of the inside list is the x origin, the followed by the y origin, followed by
             +/-1 for the x direction, then +/-1 for the y direction. Coordinate 0,0 is the top left.
 
             [[x_origin,y_origin,+-1,+-1]...]
@@ -74,7 +72,7 @@ def openBFF(filePointer: str):
             1 = REFLECTIVE
             2 = REFRACTIVE
             3 = OPAQUE
-    '''
+    """
 
     # open the file
     file = open(filePointer, 'r').read()
@@ -99,21 +97,23 @@ def openBFF(filePointer: str):
 
     # CONVERSION OF STRING GRID TO NUMERICAL GRID
     # lambda function below converts the x and o characters to numerical strings
-    def convertGridSymbol(newLine): return newLine.replace(UNAVAILABLE_GRID_KEY, HOLE_CHAR).replace(FREE_GRID_KEY, FREE_CHAR).replace(
-        FIXED_REFLECTIVE_KEY, str(FIXED_REFLECTIVE)).replace(FIXED_REFRACTIVE_KEY, str(FIXED_REFRACTIVE)).replace(FIXED_OPAQUE_KEY, str(FIXED_OPAQUE))
+    def convertGridSymbol(newLine): return newLine.replace(UNAVAILABLE_GRID_KEY, HOLE_CHAR).replace(
+        FREE_GRID_KEY, FREE_CHAR).replace(FIXED_REFLECTIVE_KEY, str(FIXED_REFLECTIVE)).replace(
+        FIXED_REFRACTIVE_KEY, str(FIXED_REFRACTIVE)).replace(FIXED_OPAQUE_KEY, str(FIXED_OPAQUE))
 
-    # cast result of map function appied to gridString and assign as grid
+    # cast result of map function applied to gridString and assign as grid
     grid = list(map(lineList, list(map(convertGridSymbol, gridString))))
     grid = [list(map(int, l)) for l in grid]
 
-    # list of list storing the laser origin and tragectory, for now is initialized as an empty string to inform python that it has a job to do
+    # list of list storing the laser origin and trajectory, for now is initialized as an empty string to inform
+    # python that it has a job to do
     laserList = []
     # block type list
     blockList = []
     # list of list storing the points the lasers must pass through
     pointGoalList = []
 
-    ### BLOCK, POINT, AND LASER PARSING###
+    # -- BLOCK, POINT, AND LASER PARSING -- #
     # iterate from the end of the grid to the end of the file to avoid capturing values within the grid string
     for line in lineSplitFile[stopGridLine+1:]:
         # check for lazor trajectory
@@ -140,11 +140,13 @@ def openBFF(filePointer: str):
                 list(map(int, line.strip('P').strip().split())))
         # check for A blocks
         elif line.startswith("A"):
-            # number of a blocks is assigned as the present line with the leading A striped, then with the leading spaces stripped, then cast to an integer value
+            # number of a blocks is assigned as the present line with the leading A striped, then with the leading
+            # spaces stripped, then cast to an integer value
             blockNumA = int(line.strip('A').strip())
             # iterate for extracted number of blocks
             for i in range(blockNumA):
-                # append the global value for A blocks to the block list for as many times as the extracted blockNum indicates
+                # append the global value for A blocks to the block list for as many times as the extracted
+                # blockNum indicates
                 blockList.append(REFLECTIVE)
         # check for B blocks
         elif line.startswith("B"):
@@ -154,7 +156,8 @@ def openBFF(filePointer: str):
             blockNumB = int(line.strip('B').strip())
             # iterate for extracted number of blocks
             for i in range(blockNumB):
-                # append the global value for B blocks to the block list for as many times as the extracted blockNum indicates
+                # append the global value for B blocks to the block list for as many times as the extracted
+                # blockNum indicates
                 blockList.append(OPAQUE)
         # check for C blocks
         elif line.startswith("C"):
@@ -164,12 +167,8 @@ def openBFF(filePointer: str):
             blockNumC = int(line.strip('C').strip())
             # iterate for extracted number of blocks
             for i in range(blockNumC):
-                # append the global value for C blocks to the block list for as many times as the extracted blockNum indicates
+                # append the global value for C blocks to the block list for as many times as the extracted
+                # blockNum indicates
                 blockList.append(REFRACTIVE)
 
     return grid, laserList, pointGoalList, blockList
-
-
-if __name__ == '__main__':
-    file_path = os.getcwd() + '/bff/dark_1.bff'
-    openBFF(file_path)
